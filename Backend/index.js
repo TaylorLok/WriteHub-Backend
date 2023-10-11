@@ -1,4 +1,3 @@
-//add dotenv
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -11,7 +10,7 @@ const app = express();
 app.use((req, res, next) => {
     console.log(req.path, req.method)
     next();    
-    res.send('middleware applied');
+    console.log('middleware applied');
 });
 
 //for submitting data in json format to the API
@@ -25,7 +24,7 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() =>{
 
         app.listen(process.env.PORT, () => {
-            console.log('connecting to the Mongo DB & Port Number 3000'. process.env.PORT);
+            console.log('connecting to the Mongo DB & Port Number'. process.env.PORT);
         });
 
         console.log('connected to the database');
