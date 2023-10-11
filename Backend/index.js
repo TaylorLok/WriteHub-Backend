@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() =>{
 
         app.listen(process.env.PORT, () => {
-            console.log('connecting to the Mongo DB & Port Number'. process.env.PORT);
+            console.log('connecting to the Mongo DB & Port Number', process.env.PORT);
         });
 
         console.log('connected to the database');

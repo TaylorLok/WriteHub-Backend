@@ -6,6 +6,7 @@ const userSchema = new Schema({
     username: {
         type: String,
         required: true,
+        unique: true,
     },
     password: {
         type: String, 
@@ -14,6 +15,7 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
     }
        
 },{ timestamps: true,}); //timestamps true will give us the time when the user was created or updated.

@@ -1,10 +1,12 @@
 const User = require('../models/userModel');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken'); //adding auth using javascript web token
 
 //get all users
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({}).sort({createdAt: -1});
+        const users = await User.find({}).sort({createdAt: -1}); //sort by descending order
         res.status(200).json(users);
     } catch (err) {
         res.status(500).json({message: err.message});
@@ -87,4 +89,50 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = {getAllUsers, getUser, createUser, updateUser, deleteUser}
+//add User registration
+const registerUser = async (req, res) => {
+    const { username, password, email } = req.body;
+
+    try {
+        // Check if the username or email is already in use
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username or email already in use.' });
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create a new user
+        const newUser = await User.create({ username, email, password: hashedPassword });
+        res.status(201).json({ message: 'Registration successful' });
+    } catch (error) {
+        res.status(500).json({ message: 'Registration failed', error: error.message });
+    }
+};
+
+
+// Login (Authenticate a user)
+const loginUser = async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        // Find the user by their username
+        const user = await User.findOne({ username });
+
+        // If the user doesn't exist or the password doesn't match, return an error
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Create and send a JSON Web Token (JWT) for authentication
+        const token = jwt.sign({ username: user.username }, 'your-secret-key', { expiresIn: '1h' });
+
+        res.json({ message: 'Login successful', token });
+    } catch (error) {
+        res.status(500).json({ message: 'Login failed', error: error.message });
+    }
+};
+
+
+module.exports = {getAllUsers, getUser, createUser: registerUser, updateUser, deleteUser, loginUser}
