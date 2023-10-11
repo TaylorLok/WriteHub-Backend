@@ -1,13 +1,37 @@
+//add dotenv
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
+const userRoutes = require('./routes/userRoutes');
 
-
+//create an express app
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send('Hello World!, Welcome to Write Hub Blog. I have just added Nodemon for autoload of the file');
+//middleware routes
+app.use((req, res, next) => {
+    console.log(req.path, req.method)
+    next();    
+    res.send('middleware applied');
 });
 
-app.listen(3000, () => {
-    console.log('Listening on port 3000');
-});
+//for submitting data in json format to the API
+app.use(express.json());
+
+//calling routes
+app.use('/api/users', userRoutes);
+
+//connect to mongodb
+mongoose.connect(process.env.MONGO_URI)
+    .then(() =>{
+
+        app.listen(process.env.PORT, () => {
+            console.log('connecting to the Mongo DB & Port Number 3000'. process.env.PORT);
+        });
+
+        console.log('connected to the database');
+    })
+    .catch((err) => console.log(err));
+
+
+
 
