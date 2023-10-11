@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken'); //adding auth using javascript web token
 const getAllUsers = async (req, res) => {
     try {
         const users = await User.find({}).sort({createdAt: -1}); //sort by descending order
-        res.status(200).json(users);
+        res.status(200).json({message: 'All users'});
     } catch (err) {
         res.status(500).json({message: err.message});
     }
@@ -92,21 +92,22 @@ const deleteUser = async (req, res) => {
 //add User registration
 const registerUser = async (req, res) => {
     const { username, password, email } = req.body;
-
+    console.log(req.body);
     try {
         // Check if the username or email is already in use
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
             return res.status(400).json({ message: 'Username or email already in use.' });
         }
-
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
-
+        
         // Create a new user
         const newUser = await User.create({ username, email, password: hashedPassword });
+        console.log(newUser);
         res.status(201).json({ message: 'Registration successful' });
     } catch (error) {
+        
         res.status(500).json({ message: 'Registration failed', error: error.message });
     }
 };
@@ -135,4 +136,4 @@ const loginUser = async (req, res) => {
 };
 
 
-module.exports = {getAllUsers, getUser, createUser: registerUser, updateUser, deleteUser, loginUser}
+module.exports = {getAllUsers, getUser, registerUser, updateUser, deleteUser, loginUser, createUser}
